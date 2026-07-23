@@ -32,6 +32,30 @@ export class AIPage extends SettingsPage {
 
         const settings = this.settingsManager.settings;
 
+        // Cache explanation & clear cache button at the top
+        new Setting(this.containerEl)
+            .setName("Audio Cache")
+            .setDesc("TTS audio files are cached locally to reduce server hits and allow instant replay. Stored in: .obsidian/plugins/obsidian-spaced-repetition/cache/")
+            .addButton((button) =>
+                button
+                    .setButtonText("Clear Audio Cache")
+                    .setClass("mod-warning")
+                    .onClick(async () => {
+                        const cacheDir = `.obsidian/plugins/obsidian-spaced-repetition/cache`;
+                        try {
+                            if (await this.plugin.app.vault.adapter.exists(cacheDir)) {
+                                await this.plugin.app.vault.adapter.rmdir(cacheDir, true);
+                                new Notice("TTS audio cache cleared successfully!");
+                            } else {
+                                new Notice("Audio cache is already empty.");
+                            }
+                        } catch (e) {
+                            console.error("Failed to clear cache:", e);
+                            new Notice(`Failed to clear cache: ${e.toString()}`);
+                        }
+                    }),
+            );
+
         new Setting(this.containerEl)
             .setName("Enable TTS")
             .setDesc("Enable text-to-speech for flashcards.")
