@@ -98,7 +98,7 @@ export class CardContainer {
                 ).open();
             },
             settings,
-            () => this.content.innerText,
+            () => this.content.textContent?.trim() || "",
             closeModal,
         );
 

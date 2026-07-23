@@ -98,10 +98,6 @@ export interface SRSettings {
     ttsBaseUrl: string;
     ttsApiKey: string;
     ttsModel: string;
-    aiProvider: "Ollama" | "Claude" | "Gemini" | "None";
-    aiApiKey: string;
-    aiBaseUrl: string;
-    aiModel: string;
 
     preferredDateFormatForNoteReviewQueue: string;
     preferredLocale: string;
@@ -200,10 +196,6 @@ export const DEFAULT_SETTINGS: SRSettings = {
     ttsBaseUrl: "http://localhost:8880/v1",
     ttsApiKey: "",
     ttsModel: "kokoro",
-    aiProvider: "None",
-    aiApiKey: "",
-    aiBaseUrl: "",
-    aiModel: "",
 
     preferredDateFormatForNoteReviewQueue: "MMM DD YYYY",
     preferredLocale: "-",

@@ -1,4 +1,5 @@
 import { SRSettings } from "src/data/settings";
+import { Notice } from "obsidian";
 
 export class TTSUtil {
     private static currentAudio: HTMLAudioElement | null = null;
@@ -14,10 +15,19 @@ export class TTSUtil {
             window.speechSynthesis.cancel();
         }
 
+        console.log("TTS Provider configured:", settings.ttsProvider);
+        console.log("TTS Base URL configured:", settings.ttsBaseUrl);
+
         if (settings.ttsProvider === "openai-compatible") {
             try {
-                const baseUrl = settings.ttsBaseUrl.replace(/\/$/, "");
+                const baseUrl = settings.ttsBaseUrl ? settings.ttsBaseUrl.replace(/\/$/, "") : "http://localhost:8880/v1";
                 const url = `${baseUrl}/audio/speech`;
+
+                console.log("Sending TTS request to:", url, {
+                    model: settings.ttsModel || "kokoro",
+                    input: text,
+                    voice: settings.ttsVoice || "default",
+                });
 
                 const headers: Record<string, string> = {
                     "Content-Type": "application/json",
@@ -39,7 +49,8 @@ export class TTSUtil {
 
                 if (!response.ok) {
                     const errText = await response.text();
-                    console.error("TTS API error:", errText);
+                    console.error("TTS API error response:", response.status, errText);
+                    new Notice(`TTS API Error (${response.status}): ${errText}`);
                     return;
                 }
 
@@ -48,13 +59,16 @@ export class TTSUtil {
                 this.currentAudio = new Audio(audioUrl);
                 
                 await this.currentAudio.play();
+                console.log("TTS audio playback started successfully.");
                 return;
             } catch (e) {
-                console.error("Failed to play OpenAI-compatible TTS, falling back to browser TTS:", e);
+                console.error("Failed to fetch/play OpenAI-compatible TTS:", e);
+                new Notice(`TTS Request Failed: ${e.toString()}`);
+                return; // Do NOT fall back to browser TTS so you can see why it failed!
             }
         }
 
-        // Fallback to browser SpeechSynthesis
+        // Fallback to browser SpeechSynthesis (only if provider is explicitly 'browser')
         if (!("speechSynthesis" in window)) {
             console.error("Speech Synthesis not supported in this browser.");
             return;

@@ -1,4 +1,3 @@
-import { AIService } from "src/services/ai-service";
 import { Plugin } from "obsidian";
 
 import { CommandManager } from "src/command-manager";
@@ -22,7 +21,6 @@ export default class SRPlugin extends Plugin {
     private _nextNoteReviewHandler: NextNoteReviewHandler | null = null;
     private _commandManager: CommandManager | null = null;
     private _reminderManager: ReminderManager | null = null;
-    public aiService: AIService | null = null;
     public isInitialized: boolean = false;
 
     async onload(): Promise<void> {
@@ -39,7 +37,6 @@ export default class SRPlugin extends Plugin {
             );
 
             this.dataManager = new DataManager(this, pluginDataManager, settingsManager);
-            this.aiService = new AIService(settingsManager.settings);
             const uiManager = new UIManager(this, settingsManager);
             this.uiManager = uiManager;
             this.commandManager = new CommandManager(this, settingsManager, uiManager);
