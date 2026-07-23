@@ -91,6 +91,14 @@ export interface SRSettings {
     showSchedulingDebugMessages: boolean;
     showParserDebugMessages: boolean;
 
+    // AI settings
+    enableTTS: boolean;
+    ttsVoice: string;
+    aiProvider: "Ollama" | "Claude" | "Gemini" | "None";
+    aiApiKey: string;
+    aiBaseUrl: string;
+    aiModel: string;
+
     preferredDateFormatForNoteReviewQueue: string;
     preferredLocale: string;
 }
@@ -180,6 +188,15 @@ export const DEFAULT_SETTINGS: SRSettings = {
     // logging
     showSchedulingDebugMessages: false,
     showParserDebugMessages: false,
+
+    // AI
+    enableTTS: false,
+    ttsVoice: "",
+    aiProvider: "None",
+    aiApiKey: "",
+    aiBaseUrl: "",
+    aiModel: "",
+
     preferredDateFormatForNoteReviewQueue: "MMM DD YYYY",
     preferredLocale: "-",
 };

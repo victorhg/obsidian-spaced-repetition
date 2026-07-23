@@ -97,6 +97,8 @@ export class CardContainer {
                     },
                 ).open();
             },
+            settings,
+            () => this.content.innerText,
             closeModal,
         );
 

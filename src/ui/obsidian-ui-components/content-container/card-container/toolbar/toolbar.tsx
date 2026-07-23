@@ -1,7 +1,9 @@
 import "src/ui/obsidian-ui-components/content-container/card-container/toolbar/toolbar.css";
 import { Platform } from "obsidian";
 
-import { Deck } from "src/data/data-structures/deck/deck";
+import TTSButtonComponent from "src/ui/obsidian-ui-components/content-container/card-container/toolbar/toolbar-buttons/tts-button";
+import { TTSUtil } from "src/utils/tts";
+import { SRSettings } from "src/data/settings";
 import { DeckStats } from "src/scheduling/flashcard-review-sequencer";
 import DeckInfoComponent from "src/ui/obsidian-ui-components/content-container/card-container/toolbar/deck-info/deck-info";
 import BackButtonComponent from "src/ui/obsidian-ui-components/content-container/card-container/toolbar/toolbar-buttons/back-button";
@@ -29,6 +31,8 @@ export default class CardToolbarComponent {
         displayCurrentCardInfoNotice: () => void,
         skipCurrentCard: () => void,
         onOpenResetModalClick: () => void,
+        settings: SRSettings,
+        getCardText: () => string,
         closeModal?: () => void,
     ) {
         // Build ui
@@ -70,6 +74,14 @@ export default class CardToolbarComponent {
         );
 
         this.toolbar.createDiv("sr-divider");
+
+        if (settings.enableTTS) {
+            new TTSButtonComponent(
+                this.toolbar,
+                () => TTSUtil.speak(getCardText()),
+                EmulatedPlatform().isPhone || Platform.isPhone ? ["mod-raised"] : ["clickable-icon"]
+            );
+        }
 
         this.shortMenuButton = new CardMenuButtonComponent(
             this.toolbar,
