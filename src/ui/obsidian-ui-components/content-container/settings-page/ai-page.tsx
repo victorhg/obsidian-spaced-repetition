@@ -1,7 +1,7 @@
-import { SettingsPage } from "src/ui/obsidian-ui-components/content-container/settings-page/settings-page";
-import { SRSettings } from "src/data/settings";
 import { DataManager } from "src/data/data-manager";
+import { SettingsManager } from "src/data/settings-manager";
 import SRPlugin from "src/main";
+import { SettingsPage } from "src/ui/obsidian-ui-components/content-container/settings-page/settings-page";
 import { AISettings } from "src/ui/obsidian-ui-components/content-container/settings-page/ai-settings";
 import React from "react";
 import { createRoot, Root } from "react-dom/client";
@@ -9,28 +9,36 @@ import { SettingsPageType } from "src/ui/obsidian-ui-components/content-containe
 
 export class AIPage extends SettingsPage {
     private root: Root;
-    private plugin: SRPlugin;
 
     constructor(
         containerEl: HTMLElement,
         plugin: SRPlugin,
-        settingsManager: any,
+        settingsManager: SettingsManager,
         dataManager: DataManager,
         pageType: SettingsPageType,
-        applySettingsUpdate: (callback: () => void) => void,
+        applySettingsUpdate: (callback: () => unknown) => void,
         display: () => void,
         openPage: (pageType: SettingsPageType) => void,
         scrollListener: (scrollPosition: number) => void,
     ) {
-        super(containerEl, pageType, openPage, scrollListener);
-        this.plugin = plugin;
+        super(
+            containerEl,
+            plugin,
+            settingsManager,
+            dataManager,
+            pageType,
+            applySettingsUpdate,
+            display,
+            openPage,
+            scrollListener
+        );
         this.root = createRoot(this.containerEl);
     }
 
     render(): void {
         this.root.render(
             <AISettings
-                settings={this.plugin.settings}
+                settings={this.plugin.settingsManager.settings}
                 saveSettings={async () => {
                     await this.plugin.saveSettings();
                 }}
@@ -40,5 +48,6 @@ export class AIPage extends SettingsPage {
 
     destroy(): void {
         this.root.unmount();
+        super.destroy();
     }
 }

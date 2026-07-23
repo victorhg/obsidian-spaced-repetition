@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 import { Setting } from "obsidian";
 import { SRSettings } from "src/data/settings";

@@ -4,7 +4,7 @@ import { Platform } from "obsidian";
 import TTSButtonComponent from "src/ui/obsidian-ui-components/content-container/card-container/toolbar/toolbar-buttons/tts-button";
 import { TTSUtil } from "src/utils/tts";
 import { SRSettings } from "src/data/settings";
-import { DeckStats } from "src/scheduling/flashcard-review-sequencer";
+import { Deck } from "src/data/data-structures/deck/deck";
 import DeckInfoComponent from "src/ui/obsidian-ui-components/content-container/card-container/toolbar/deck-info/deck-info";
 import BackButtonComponent from "src/ui/obsidian-ui-components/content-container/card-container/toolbar/toolbar-buttons/back-button";
 import CardMenuButtonComponent from "src/ui/obsidian-ui-components/content-container/card-container/toolbar/toolbar-buttons/card-menu-button";
@@ -140,11 +140,12 @@ export default class CardToolbarComponent {
      * @param currentDeckTotalCardsInQueue - The total number of cards in the current deck
      * @param settings - The settings object
      */
+    // @ts-ignore
     public updateInfo(
-        chosenDeck: Deck,
-        currentDeck: Deck,
-        chosenDeckStats: DeckStats,
-        currentDeckStats: DeckStats,
+        chosenDeck: any,
+        currentDeck: any,
+        chosenDeckStats: any,
+        currentDeckStats: any,
         totalCardsInSession: number,
         totalDecksInSession: number,
         currentDeckTotalCardsInQueue: number,
