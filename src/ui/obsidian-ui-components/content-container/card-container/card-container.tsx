@@ -79,6 +79,7 @@ export class CardContainer {
         this.setCustomHotKeyState(settings.useCustomHotkeys);
 
         this.toolbar = new CardToolbarComponent(
+            app,
             this.view,
             settings.showDeleteButtonInCardView,
             deleteCurrentCard,

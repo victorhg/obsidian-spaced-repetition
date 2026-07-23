@@ -124,7 +124,7 @@ export class AIPage extends SettingsPage {
                         .onClick(async () => {
                             new Notice("Testing TTS connection...");
                             try {
-                                await TTSUtil.speak("Hello, connection successful!", settings, "en-US");
+                                await TTSUtil.speak(this.plugin.app, "Hello, connection successful!", settings, "en-US");
                             } catch (e) {
                                 console.error("Test TTS failed:", e);
                                 new Notice(`Test failed: ${e.toString()}`);
@@ -153,7 +153,7 @@ export class AIPage extends SettingsPage {
                         .setButtonText("Test Browser Speech")
                         .setCta()
                         .onClick(async () => {
-                            await TTSUtil.speak("Hello, browser speech test successful!", settings, "en-US");
+                            await TTSUtil.speak(this.plugin.app, "Hello, browser speech test successful!", settings, "en-US");
                         }),
                 );
         }

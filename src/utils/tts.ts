@@ -1,10 +1,20 @@
 import { SRSettings } from "src/data/settings";
-import { Notice } from "obsidian";
+import { Notice, App } from "obsidian";
 
 export class TTSUtil {
     private static currentAudio: HTMLAudioElement | null = null;
 
-    static async speak(text: string, settings: SRSettings, lang?: string): Promise<void> {
+    private static getCacheFileName(text: string, voice: string): string {
+        let hash = 0;
+        const str = `${voice}:${text}`;
+        for (let i = 0; i < str.length; i++) {
+            hash = (hash << 5) - hash + str.charCodeAt(i);
+            hash |= 0;
+        }
+        return `tts_cache_${Math.abs(hash)}.mp3`;
+    }
+
+    static async speak(app: App, text: string, settings: SRSettings, lang?: string): Promise<void> {
         // Stop any currently playing audio
         if (this.currentAudio) {
             this.currentAudio.pause();
@@ -15,60 +25,75 @@ export class TTSUtil {
             window.speechSynthesis.cancel();
         }
 
-        console.log("TTS Provider configured:", settings.ttsProvider);
-        console.log("TTS Base URL configured:", settings.ttsBaseUrl);
-
         if (settings.ttsProvider === "openai-compatible") {
             try {
-                const baseUrl = settings.ttsBaseUrl ? settings.ttsBaseUrl.replace(/\/$/, "") : "http://localhost:8880/v1";
-                const url = `${baseUrl}/audio/speech`;
+                const voice = settings.ttsVoice || "default";
+                const fileName = this.getCacheFileName(text, voice);
+                const cacheDir = `.obsidian/plugins/obsidian-spaced-repetition/cache`;
+                const filePath = `${cacheDir}/${fileName}`;
 
-                console.log("Sending TTS request to:", url, {
-                    model: settings.ttsModel || "kokoro",
-                    input: text,
-                    voice: settings.ttsVoice || "default",
-                });
-
-                const headers: Record<string, string> = {
-                    "Content-Type": "application/json",
-                };
-
-                if (settings.ttsApiKey) {
-                    headers["Authorization"] = `Bearer ${settings.ttsApiKey}`;
+                // Ensure cache directory exists
+                if (!(await app.vault.adapter.exists(cacheDir))) {
+                    await app.vault.adapter.mkdir(cacheDir);
                 }
 
-                const response = await fetch(url, {
-                    method: "POST",
-                    headers,
-                    body: JSON.stringify({
-                        model: settings.ttsModel || "kokoro",
-                        input: text,
-                        voice: settings.ttsVoice || "default",
-                    }),
-                });
+                let audioBuffer: ArrayBuffer;
 
-                if (!response.ok) {
-                    const errText = await response.text();
-                    console.error("TTS API error response:", response.status, errText);
-                    new Notice(`TTS API Error (${response.status}): ${errText}`);
-                    return;
+                // Check cache first
+                if (await app.vault.adapter.exists(filePath)) {
+                    console.log("Playing TTS from local cache:", filePath);
+                    audioBuffer = await app.vault.adapter.readBinary(filePath);
+                } else {
+                    console.log("Cache miss. Fetching TTS from server...");
+                    const baseUrl = settings.ttsBaseUrl ? settings.ttsBaseUrl.replace(/\/$/, "") : "http://localhost:8880/v1";
+                    const url = `${baseUrl}/audio/speech`;
+
+                    const headers: Record<string, string> = {
+                        "Content-Type": "application/json",
+                    };
+
+                    if (settings.ttsApiKey) {
+                        headers["Authorization"] = `Bearer ${settings.ttsApiKey}`;
+                    }
+
+                    const response = await fetch(url, {
+                        method: "POST",
+                        headers,
+                        body: JSON.stringify({
+                            model: settings.ttsModel || "kokoro",
+                            input: text,
+                            voice: voice,
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        const errText = await response.text();
+                        console.error("TTS API error response:", response.status, errText);
+                        new Notice(`TTS API Error (${response.status}): ${errText}`);
+                        return;
+                    }
+
+                    audioBuffer = await response.arrayBuffer();
+
+                    // Save to cache
+                    await app.vault.adapter.writeBinary(filePath, audioBuffer);
+                    console.log("Saved TTS audio to cache:", filePath);
                 }
 
-                const blob = await response.blob();
+                const blob = new Blob([audioBuffer], { type: "audio/mp3" });
                 const audioUrl = URL.createObjectURL(blob);
                 this.currentAudio = new Audio(audioUrl);
                 
                 await this.currentAudio.play();
-                console.log("TTS audio playback started successfully.");
                 return;
             } catch (e) {
                 console.error("Failed to fetch/play OpenAI-compatible TTS:", e);
                 new Notice(`TTS Request Failed: ${e.toString()}`);
-                return; // Do NOT fall back to browser TTS so you can see why it failed!
+                return;
             }
         }
 
-        // Fallback to browser SpeechSynthesis (only if provider is explicitly 'browser')
+        // Fallback to browser SpeechSynthesis
         if (!("speechSynthesis" in window)) {
             console.error("Speech Synthesis not supported in this browser.");
             return;

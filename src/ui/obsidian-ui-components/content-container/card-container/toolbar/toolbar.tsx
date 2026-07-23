@@ -1,5 +1,5 @@
 import "src/ui/obsidian-ui-components/content-container/card-container/toolbar/toolbar.css";
-import { Platform } from "obsidian";
+import { Platform, App } from "obsidian";
 
 import TTSButtonComponent from "src/ui/obsidian-ui-components/content-container/card-container/toolbar/toolbar-buttons/tts-button";
 import { TTSUtil } from "src/utils/tts";
@@ -22,6 +22,7 @@ export default class CardToolbarComponent {
     private shortMenuButton: CardMenuButtonComponent;
 
     public constructor(
+        app: App,
         parentEl: HTMLElement,
         showDeleteButton: boolean,
         deleteCurrentCard: () => void,
@@ -88,7 +89,7 @@ export default class CardToolbarComponent {
                 this.toolbar,
                 () => {
                     const text = getCardText();
-                    TTSUtil.speak(text, settings, detectLang(text));
+                    TTSUtil.speak(app, text, settings, detectLang(text));
                 },
                 EmulatedPlatform().isPhone || Platform.isPhone ? ["mod-raised"] : ["clickable-icon"]
             );
