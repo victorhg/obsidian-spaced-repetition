@@ -20,6 +20,7 @@ import { ConfirmationModal } from "src/ui/obsidian-ui-components/modals/confirma
 import { escapeHtml } from "src/utils/escape-html";
 import EmulatedPlatform from "src/utils/platform-detector";
 import { RenderMarkdownWrapper } from "src/utils/renderers";
+import { TTSUtil } from "src/utils/tts";
 
 // TODO: Refactor cloze rendering into the renderers file
 export class CardContainer {
@@ -169,6 +170,10 @@ export class CardContainer {
     public async drawCardFront(sessionData: SessionData, settings: SRSettings) {
         this.currentSessionData = sessionData;
         this.toolbar.setResetButtonDisabled(true);
+
+        const frontText = sessionData.cardData.currentCard?.front.trim() || "";
+        const cached = await TTSUtil.isCached(this.app, frontText, settings);
+        this.toolbar.setTTSCached(cached);
         // Update current deck info
         this.cardState = sessionData.cardData.currentCardState;
 

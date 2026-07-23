@@ -17,4 +17,16 @@ export default class TTSButtonComponent {
         this.buttonEl.setAttribute("aria-label", "Text-to-Speech");
         this.buttonEl.addEventListener("click", onClick);
     }
+
+    public setCached(cached: boolean) {
+        if (cached) {
+            this.buttonEl.addClass("sr-tts-cached");
+            this.buttonEl.setAttribute("aria-label", "Text-to-Speech (Cached - Instant)");
+            this.buttonEl.style.color = "var(--interactive-accent)";
+        } else {
+            this.buttonEl.removeClass("sr-tts-cached");
+            this.buttonEl.setAttribute("aria-label", "Text-to-Speech");
+            this.buttonEl.style.color = "";
+        }
+    }
 }

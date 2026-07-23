@@ -18,6 +18,7 @@ export default class CardToolbarComponent {
     private toolbar: HTMLDivElement;
     private infoSection: DeckInfoComponent;
     private resetButton: ResetButtonComponent;
+    private ttsButton: TTSButtonComponent | null = null;
     private extendedMenuButton: CardMenuButtonComponent;
     private shortMenuButton: CardMenuButtonComponent;
 
@@ -85,11 +86,12 @@ export default class CardToolbarComponent {
                 return "pt-BR";
             };
 
-            new TTSButtonComponent(
+            this.ttsButton = new TTSButtonComponent(
                 this.toolbar,
-                () => {
+                async () => {
                     const text = getCardText();
-                    TTSUtil.speak(app, text, settings, detectLang(text));
+                    await TTSUtil.speak(app, text, settings, detectLang(text));
+                    this.ttsButton?.setCached(true);
                 },
                 EmulatedPlatform().isPhone || Platform.isPhone ? ["mod-raised"] : ["clickable-icon"]
             );
@@ -139,6 +141,10 @@ export default class CardToolbarComponent {
         ];
 
         new ModalCloseButtonComponent(this.toolbar, closeModal, closeButtonClasses);
+    }
+
+    public setTTSCached(cached: boolean) {
+        this.ttsButton?.setCached(cached);
     }
 
     /**

@@ -4,7 +4,7 @@ import { Notice, App } from "obsidian";
 export class TTSUtil {
     private static currentAudio: HTMLAudioElement | null = null;
 
-    private static getCacheFileName(text: string, voice: string): string {
+    public static getCacheFileName(text: string, voice: string): string {
         let hash = 0;
         const str = `${voice}:${text}`;
         for (let i = 0; i < str.length; i++) {
@@ -12,6 +12,14 @@ export class TTSUtil {
             hash |= 0;
         }
         return `tts_cache_${Math.abs(hash)}.mp3`;
+    }
+
+    public static async isCached(app: App, text: string, settings: SRSettings): Promise<boolean> {
+        if (settings.ttsProvider !== "openai-compatible") return false;
+        const voice = settings.ttsVoice || "default";
+        const fileName = this.getCacheFileName(text, voice);
+        const filePath = `.obsidian/plugins/obsidian-spaced-repetition/cache/${fileName}`;
+        return await app.vault.adapter.exists(filePath);
     }
 
     static async speak(app: App, text: string, settings: SRSettings, lang?: string): Promise<void> {
