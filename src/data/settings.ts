@@ -94,6 +94,10 @@ export interface SRSettings {
     // AI settings
     enableTTS: boolean;
     ttsVoice: string;
+    ttsProvider: "browser" | "openai-compatible";
+    ttsBaseUrl: string;
+    ttsApiKey: string;
+    ttsModel: string;
     aiProvider: "Ollama" | "Claude" | "Gemini" | "None";
     aiApiKey: string;
     aiBaseUrl: string;
@@ -192,6 +196,10 @@ export const DEFAULT_SETTINGS: SRSettings = {
     // AI
     enableTTS: false,
     ttsVoice: "",
+    ttsProvider: "browser",
+    ttsBaseUrl: "http://localhost:8880/v1",
+    ttsApiKey: "",
+    ttsModel: "kokoro",
     aiProvider: "None",
     aiApiKey: "",
     aiBaseUrl: "",

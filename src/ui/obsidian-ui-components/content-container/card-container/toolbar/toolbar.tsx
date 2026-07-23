@@ -76,9 +76,20 @@ export default class CardToolbarComponent {
         this.toolbar.createDiv("sr-divider");
 
         if (settings.enableTTS) {
+            const detectLang = (text: string): string => {
+                const mandarinRegex = /[\u4e00-\u9fa5]/;
+                if (mandarinRegex.test(text)) {
+                    return "zh-CN";
+                }
+                return "pt-BR";
+            };
+
             new TTSButtonComponent(
                 this.toolbar,
-                () => TTSUtil.speak(getCardText()),
+                () => {
+                    const text = getCardText();
+                    TTSUtil.speak(text, settings, detectLang(text));
+                },
                 EmulatedPlatform().isPhone || Platform.isPhone ? ["mod-raised"] : ["clickable-icon"]
             );
         }
