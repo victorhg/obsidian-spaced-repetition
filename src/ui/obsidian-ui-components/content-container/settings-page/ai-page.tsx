@@ -127,7 +127,7 @@ export class AIPage extends SettingsPage {
 
             new Setting(this.containerEl)
                 .setName("TTS Voice")
-                .setDesc("Voice identifier (e.g. af_sky or alloy).")
+                .setDesc("Voice identifier (e.g. af_sky for English, zf_001 for Mandarin, or alloy for OpenAI). Changing the voice automatically generates and caches new audio files for that voice.")
                 .addText((text) =>
                     text
                         .setPlaceholder("af_sky")
