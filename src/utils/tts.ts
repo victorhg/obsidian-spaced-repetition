@@ -19,7 +19,9 @@ export class TTSUtil {
         const voice = settings.ttsVoice || "default";
         const fileName = this.getCacheFileName(text, voice);
         const filePath = `.obsidian/plugins/obsidian-spaced-repetition/cache/${fileName}`;
-        return await app.vault.adapter.exists(filePath);
+        const exists = await app.vault.adapter.exists(filePath);
+        console.log("Checking cache for text:", JSON.stringify(text), "-> Path:", filePath, "-> Exists:", exists);
+        return exists;
     }
 
     static async speak(app: App, text: string, settings: SRSettings, lang?: string): Promise<void> {
