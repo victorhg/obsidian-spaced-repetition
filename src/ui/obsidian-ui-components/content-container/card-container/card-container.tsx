@@ -39,6 +39,7 @@ export class CardContainer {
 
     private response: ResponseSectionComponent;
 
+    private currentSessionData: SessionData | null = null;
     private clozeInputs: NodeListOf<HTMLInputElement> | null = null;
     private clozeAnswers: NodeListOf<Element> | null = null;
 
@@ -98,7 +99,7 @@ export class CardContainer {
                 ).open();
             },
             settings,
-            () => this.content.textContent?.trim() || "",
+            () => this.currentSessionData?.cardData.currentCard?.front.trim() || "",
             closeModal,
         );
 
@@ -165,6 +166,7 @@ export class CardContainer {
     }
 
     public async drawCardFront(sessionData: SessionData, settings: SRSettings) {
+        this.currentSessionData = sessionData;
         this.toolbar.setResetButtonDisabled(true);
         // Update current deck info
         this.cardState = sessionData.cardData.currentCardState;
@@ -345,6 +347,7 @@ export class CardContainer {
         settings: SRSettings,
         determineButtonSchedule: (response: ReviewResponse) => RepItemScheduleInfo | null,
     ) {
+        this.currentSessionData = sessionData;
         this.setCustomHotKeyState(settings.useCustomHotkeys);
         this.cardState = sessionData.cardData.currentCardState;
 
