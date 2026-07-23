@@ -4,9 +4,21 @@ import { Notice, App } from "obsidian";
 export class TTSUtil {
     private static currentAudio: HTMLAudioElement | null = null;
 
+    public static cleanTextForTTS(text: string): string {
+        return text
+            .replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, "$2") // [[Link|Alias]] -> Alias
+            .replace(/\[\[([^\]]+)\]\]/g, "$1")         // [[Link]] -> Link
+            .replace(/==([^=]+)==/g, "$1")               // ==highlight== -> highlight
+            .replace(/\*\*([^*]+)\*\*/g, "$1")           // **bold** -> bold
+            .replace(/\*([^*]+)\*/g, "$1")               // *italic* -> italic
+            .replace(/<[^>]*>/g, "")                     // HTML tags -> empty
+            .trim();
+    }
+
     public static getCacheFileName(text: string, voice: string): string {
+        const cleaned = this.cleanTextForTTS(text);
         let hash = 0;
-        const str = `${voice}:${text}`;
+        const str = `${voice}:${cleaned}`;
         for (let i = 0; i < str.length; i++) {
             hash = (hash << 5) - hash + str.charCodeAt(i);
             hash |= 0;
@@ -20,11 +32,12 @@ export class TTSUtil {
         const fileName = this.getCacheFileName(text, voice);
         const filePath = `.obsidian/plugins/obsidian-spaced-repetition/cache/${fileName}`;
         const exists = await app.vault.adapter.exists(filePath);
-        console.log("Checking cache for text:", JSON.stringify(text), "-> Path:", filePath, "-> Exists:", exists);
         return exists;
     }
 
     static async speak(app: App, text: string, settings: SRSettings, lang?: string): Promise<void> {
+        const cleanedText = this.cleanTextForTTS(text);
+
         // Stop any currently playing audio
         if (this.currentAudio) {
             this.currentAudio.pause();
@@ -54,7 +67,7 @@ export class TTSUtil {
                     console.log("Playing TTS from local cache:", filePath);
                     audioBuffer = await app.vault.adapter.readBinary(filePath);
                 } else {
-                    console.log("Cache miss. Fetching TTS from server...");
+                    console.log("Cache miss. Fetching TTS from server for text:", cleanedText);
                     const baseUrl = settings.ttsBaseUrl ? settings.ttsBaseUrl.replace(/\/$/, "") : "http://localhost:8880/v1";
                     const url = `${baseUrl}/audio/speech`;
 
@@ -71,7 +84,7 @@ export class TTSUtil {
                         headers,
                         body: JSON.stringify({
                             model: settings.ttsModel || "kokoro",
-                            input: text,
+                            input: cleanedText,
                             voice: voice,
                         }),
                     });
@@ -109,7 +122,7 @@ export class TTSUtil {
             return;
         }
 
-        const utterance = new SpeechSynthesisUtterance(text);
+        const utterance = new SpeechSynthesisUtterance(cleanedText);
 
         if (lang) {
             utterance.lang = lang;

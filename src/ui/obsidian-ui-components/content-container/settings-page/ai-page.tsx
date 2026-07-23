@@ -38,7 +38,7 @@ export class AIPage extends SettingsPage {
             .setDesc("TTS audio files are cached locally to reduce server hits and allow instant replay. Stored in: .obsidian/plugins/obsidian-spaced-repetition/cache/")
             .addButton((button) =>
                 button
-                    .setButtonText("Clear Audio Cache")
+                    .setButtonText("Clear Cache")
                     .setClass("mod-warning")
                     .onClick(async () => {
                         const cacheDir = `.obsidian/plugins/obsidian-spaced-repetition/cache`;
@@ -127,7 +127,7 @@ export class AIPage extends SettingsPage {
 
             new Setting(this.containerEl)
                 .setName("TTS Voice")
-                .setDesc("Voice identifier (e.g. af_sky for English, zf_001 for Mandarin, or alloy for OpenAI). Changing the voice automatically generates and caches new audio files for that voice.")
+                .setDesc("Changing the voice automatically generates and caches new audio files for that voice.")
                 .addText((text) =>
                     text
                         .setPlaceholder("af_sky")
